@@ -1,7 +1,13 @@
-// ↓みつきが教えてくれたGAS URLをここにセット！
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyiQ8X8mtypSZoIdB1QP1joUyBJ2zWRqY68oP2oEc0eNgUtIveH2fBKlXQtDZgCeB_9vQ/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 💡 入力された文字を物理的に大文字に変換（画像保存時に小文字になるバグ対策）
+    document.querySelectorAll('.input-group input').forEach(input => {
+        input.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    });
+
     const reverseBtn = document.getElementById("reverse-btn");
     const resultSection = document.getElementById("result-section");
     const resultBoard = document.getElementById("result-board");
@@ -34,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (rawVal) {
                 hasInput = true;
                 const reversedVal = item.func(rawVal);
-                // シンプルな白黒カードを生成
                 createFlipCard(key, rawVal.toUpperCase(), reversedVal.toUpperCase());
                 
                 payloadToGAS[key] = {
@@ -46,8 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (hasInput) {
             resultSection.classList.remove("hidden");
-            actionBtns.classList.remove("hidden"); // 保存・シェアボタンを表示
-            
+            actionBtns.classList.remove("hidden"); 
             sendDataToGAS(payloadToGAS);
 
             setTimeout(() => {
@@ -63,11 +67,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 初期デザインのシンプルな裏表カード
     function createFlipCard(title, original, reversed) {
         const card = document.createElement("div");
         card.className = "flip-card";
-        
         card.innerHTML = `
             <div class="flip-card-inner">
                 <div class="flip-card-front">
@@ -85,18 +87,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function sendDataToGAS(dataObj) {
         if (!GAS_URL) return;
-        const timestamp = new Date().toISOString();
-        const payload = { timestamp, data: dataObj };
-
         fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ timestamp: new Date().toISOString(), data: dataObj })
         }).catch(err => console.error("GAS Send Error:", err));
     }
 
-    // --- 各類型の変換ロジック ---
+    // --- 画像保存ロジック（PCとスマホで分岐） ---
+    saveBtn.addEventListener("click", () => {
+        const hideElements = document.querySelectorAll('.hide-on-capture');
+        hideElements.forEach(el => el.style.display = 'none');
+
+        const target = document.getElementById("export-container");
+        
+        // 💡 3Dバグ回避: 保存する瞬間だけ、カードの3D回転をなくすクラスを付与
+        target.classList.add("capture-mode");
+
+        setTimeout(() => {
+            html2canvas(target, { backgroundColor: "#f7f9fa", scale: 2 }).then(canvas => {
+                // 元に戻す
+                target.classList.remove("capture-mode");
+                hideElements.forEach(el => el.style.display = '');
+
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+                if (isMobile) {
+                    // スマホ: モーダルを開いて長押し保存を促す
+                    const modal = document.getElementById("image-modal");
+                    const modalImage = document.getElementById("modal-image");
+                    modalImage.src = canvas.toDataURL('image/png');
+                    modal.classList.remove("hidden");
+                } else {
+                    // PC: 直接ダウンロード
+                    const link = document.createElement('a');
+                    link.download = 'reverse-mirror.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
+            });
+        }, 100); // 描画が切り替わるのを少し待つ
+    });
+
+    // モーダルを閉じる
+    document.getElementById("modal-close").addEventListener("click", () => {
+        document.getElementById("image-modal").classList.add("hidden");
+    });
+
+    shareBtn.addEventListener("click", async () => {
+        if (navigator.share) {
+            await navigator.share({
+                title: 'Reverse Mirror',
+                text: '私の自認を反転させて「もう一つの自分」を探しました！ #ReverseMirror',
+                url: window.location.href
+            }).catch(err => console.log('Share failed:', err));
+        } else {
+            alert("お使いのブラウザはシェア機能に対応していません。URLをコピーして共有してね！");
+        }
+    });
+
+    // --- 変換ロジック (既存と同じ) ---
     function getNSFromInputs() {
         const mbti = document.getElementById("mbti").value.toUpperCase();
         const socio = document.getElementById("socionics").value.toUpperCase();
@@ -104,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (mbti.includes('S') || socio.includes('S') || socio.includes('SEI') || socio.includes('ESE') || socio.includes('LSI') || socio.includes('SLE') || socio.includes('SEE') || socio.includes('ESI') || socio.includes('LSE') || socio.includes('SLI')) return 'S';
         return null;
     }
-
     function getTFFromInputs() {
         const mbti = document.getElementById("mbti").value.toUpperCase();
         const socio = document.getElementById("socionics").value.toUpperCase();
@@ -112,175 +162,79 @@ document.addEventListener("DOMContentLoaded", () => {
         if (mbti.includes('F') || socio.includes('F') || socio.includes('EIE') || socio.includes('ESE') || socio.includes('SEI') || socio.includes('IEI') || socio.includes('ESI') || socio.includes('SEE') || socio.includes('EII') || socio.includes('IEE')) return 'F';
         return null;
     }
-
     function reverseMBTI(val) {
         const map = { 'E':'I', 'I':'E', 'N':'N', 'S':'S', 'T':'F', 'F':'T', 'J':'P', 'P':'J' };
         return val.toUpperCase().split('').map(c => map[c] || c).join('');
     }
-
     function reverseSocionics(val) {
-        const type = val.toUpperCase();
-        const map3 = {
-            "ILE": "EII", "SEI": "LSE", "ESE": "SLI", "LII": "IEE",
-            "EIE": "ILI", "LSI": "SEE", "SLE": "ESI", "IEI": "LIE",
-            "SEE": "LSI", "ILI": "EIE", "LIE": "IEI", "ESI": "SLE",
-            "LSE": "SEI", "EII": "ILE", "IEE": "LII", "SLI": "ESE"
-        };
-        if (map3[type]) return map3[type];
+        const map3 = { "ILE":"EII", "SEI":"LSE", "ESE":"SLI", "LII":"IEE", "EIE":"ILI", "LSI":"SEE", "SLE":"ESI", "IEI":"LIE", "SEE":"LSI", "ILI":"EIE", "LIE":"IEI", "ESI":"SLE", "LSE":"SEI", "EII":"ILE", "IEE":"LII", "SLI":"ESE" };
+        if (map3[val.toUpperCase()]) return map3[val.toUpperCase()];
         if (val.length === 4) {
             const map = { 'E':'I', 'I':'E', 'N':'N', 'S':'S', 'T':'F', 'F':'T', 'J':'P', 'P':'J', 'j':'p', 'p':'j' };
             return val.split('').map(c => map[c.toUpperCase()] ? (c === c.toLowerCase() ? map[c.toUpperCase()].toLowerCase() : map[c.toUpperCase()]) : c).join('');
         }
         return val;
     }
-
-    const psychoMap = {
-        "LVFE": "EVLF", "EVLF": "LVFE", "LVEF": "EVFL", "EVFL": "LVEF",
-        "VLFE": "ELVF", "ELVF": "VLFE", "LFEV": "EFVL", "EFVL": "LFEV",
-        "LFVE": "EFLV", "EFLV": "LFVE", "FLVE": "LEFV", "LEFV": "FLVE",
-        "VLEF": "FELV", "FVLE": "FELV" 
-    };
-
     function reversePsycho(val) {
+        const psychoMap = { "LVFE":"EVLF", "EVLF":"LVFE", "LVEF":"EVFL", "EVFL":"LVEF", "VLFE":"ELVF", "ELVF":"VLFE", "LFEV":"EFVL", "EFVL":"LFEV", "LFVE":"EFLV", "EFLV":"LFVE", "FLVE":"LEFV", "LEFV":"FLVE", "VLEF":"FELV", "FVLE":"FELV" };
         const v = val.toUpperCase();
-        const mbti = document.getElementById("mbti").value.toUpperCase();
-        if (v === "FELV") return mbti === "ESTP" ? "FVLE" : "VLEF";
+        if (v === "FELV") return document.getElementById("mbti").value.toUpperCase() === "ESTP" ? "FVLE" : "VLEF";
         if (psychoMap[v]) return psychoMap[v];
         if (v.length === 4) return v[3] + v[1] + v[0] + v[2];
         return val;
     }
-
     function reverseAmatorica(val) {
         const v = val.toUpperCase();
-        if (v.length === 4) return v[3] + v[1] + v[0] + v[2];
-        return val;
+        return v.length === 4 ? v[3] + v[1] + v[0] + v[2] : val;
     }
-
     function reverseEnneagram(val) {
-        const map = {
-            "1W2": "7W8", "1W9": "6W7", "2W1": "9W8", "2W3": "5W4",
-            "3W2": "4W3", "3W4": "4W5", "4W3": "3W2", "4W5": "3W4",
-            "5W4": "2W3", "5W6": "7W6", "6W5": "8W7", "6W7": "1W9",
-            "7W6": "5W6", "7W8": "1W2", "8W7": "6W5", "8W9": "9W1",
-            "9W1": "8W9", "9W8": "2W1"
-        };
+        const map = { "1W2":"7W8", "1W9":"6W7", "2W1":"9W8", "2W3":"5W4", "3W2":"4W3", "3W4":"4W5", "4W3":"3W2", "4W5":"3W4", "5W4":"2W3", "5W6":"7W6", "6W5":"8W7", "6W7":"1W9", "7W6":"5W6", "7W8":"1W2", "8W7":"6W5", "8W9":"9W1", "9W1":"8W9", "9W8":"2W1" };
         return map[val.toUpperCase()] || val;
     }
-
     function reverseTritype(val, enneaVal) {
         const centerMap = { '5':'head', '6':'head', '7':'head', '2':'heart', '3':'heart', '4':'heart', '8':'gut', '9':'gut', '1':'gut' };
         const defaultFlip = { '5':'7', '7':'6', '6':'5', '2':'4', '4':'3', '3':'2', '8':'1', '1':'9', '9':'8' };
-        
-        let reverseEnneaCore = null;
-        let reverseEnneaCenter = null;
-        
+        let revCore = null, revCenter = null;
         if (enneaVal) {
-            const revEnnea = reverseEnneagram(enneaVal);
-            if (revEnnea) {
-                reverseEnneaCore = revEnnea[0]; 
-                reverseEnneaCenter = centerMap[reverseEnneaCore];
-            }
+            const rEnnea = reverseEnneagram(enneaVal);
+            if (rEnnea) { revCore = rEnnea[0]; revCenter = centerMap[revCore]; }
         }
-
-        let results = [];
-        for (let char of val) {
-            if (!centerMap[char]) continue; 
-            let flipped = defaultFlip[char];
-            if (reverseEnneaCenter && centerMap[char] === reverseEnneaCenter) {
-                flipped = reverseEnneaCore;
-            }
-            results.push(flipped);
+        let res = [];
+        for (let c of val) {
+            if (!centerMap[c]) continue;
+            let f = defaultFlip[c];
+            if (revCenter && centerMap[c] === revCenter) f = revCore;
+            res.push(f);
         }
-
-        if (reverseEnneaCore && results.includes(reverseEnneaCore)) {
-            results = results.filter(x => x !== reverseEnneaCore);
-            results.unshift(reverseEnneaCore);
+        if (revCore && res.includes(revCore)) {
+            res = res.filter(x => x !== revCore);
+            res.unshift(revCore);
         }
-        return results.join('');
+        return res.join('');
     }
-
     function reverseInstincts(val) {
         const v = val.toLowerCase();
         if (!v.includes('/')) return val;
-        const [first, second] = v.split('/');
-        const all = ['sp', 'so', 'sx'];
-        const blind = all.find(x => x !== first && x !== second);
-        return blind ? `${blind}/${second}` : val;
+        const [f, s] = v.split('/');
+        const blind = ['sp', 'so', 'sx'].find(x => x !== f && x !== s);
+        return blind ? `${blind}/${s}` : val;
     }
-
     function reverseDCNH(val) {
         const map = { 'D':'H', 'H':'D', 'C':'N', 'N':'C' };
         return val.toUpperCase().split('').map(c => map[c] || c).join('');
     }
-
     function reverseJung(val) {
         let v = val.toUpperCase().replace(/\s+/g, '');
-        const ns = getNSFromInputs();
-        const tf = getTFFromInputs();
-
+        const ns = getNSFromInputs(), tf = getTFFromInputs();
         const match = v.match(/^([EI])([NSTF])(?:\(([NSTF])\))?$/);
         if (!match) return val; 
-
-        let att = match[1]; 
-        let f1 = match[2];  
-        let f2 = match[3];  
-
+        let att = match[1], f1 = match[2], f2 = match[3];
         if (!f2) {
             if (['T', 'F'].includes(f1) && ns) f2 = ns;
             else if (['N', 'S'].includes(f1) && tf) f2 = tf;
         }
-
         att = att === 'E' ? 'I' : 'E';
-
-        const flipFunc = (func) => {
-            if (func === 'T') return 'F';
-            if (func === 'F') return 'T';
-            return func; 
-        };
-
-        if (f2) {
-            let newF1 = flipFunc(f2);
-            let newF2 = flipFunc(f1);
-            return `${att}${newF1}(${newF2})`;
-        } else {
-            return `${att}${flipFunc(f1)}`; 
-        }
+        const flipFunc = x => x === 'T' ? 'F' : (x === 'F' ? 'T' : x);
+        return f2 ? `${att}${flipFunc(f2)}(${flipFunc(f1)})` : `${att}${flipFunc(f1)}`; 
     }
-
-    // --- 保存 & シェア機能 ---
-    saveBtn.addEventListener("click", () => {
-        // 画像に不要なテキストやボタンを隠す
-        const hideElements = document.querySelectorAll('.hide-on-capture');
-        hideElements.forEach(el => el.style.display = 'none');
-
-        // 入力フォームと結果のカードをまとめたコンテナをキャプチャ対象にする
-        const target = document.getElementById("export-container");
-        
-        html2canvas(target, { backgroundColor: "#f7f9fa", scale: 2 }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'reverse-mirror.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-            // 隠した要素を元に戻す
-            hideElements.forEach(el => el.style.display = '');
-        });
-    });
-
-    shareBtn.addEventListener("click", async () => {
-        const shareData = {
-            title: 'Reverse Mirror',
-            text: '私の自認を反転させて「もう一つの自分」を探しました！ #ReverseMirror #ソシオニクス #MBTI',
-            url: window.location.href
-        };
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch (err) {
-                console.log('Share failed:', err);
-            }
-        } else {
-            alert("お使いのブラウザはシェア機能に対応していません。URLをコピーして共有してね！");
-        }
-    });
 });
