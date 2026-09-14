@@ -46,83 +46,44 @@
   <header class="header">
     <div class="logo-icon"><i class="ph ph-arrows-out-line-horizontal"></i></div>
     <h1>Reverse Mirror</h1>
-    <h2 class="catchphrase">
-      似ているのに、真逆。<br>
-      真逆なのに、どこか分かり合える。
-    </h2>
-    <p class="desc">
-      Reverse Mirrorは、N/Sなどの共通する軸を残しながら、その他の構造を反転させて「もう一つの自分」を探す類型ツールです。<br>
-      あなたのReverse Mirrorを探してみましょう。
-    </p>
+    <h2 class="catchphrase">似ているのに、真逆。<br>真逆なのに、どこか分かり合える。</h2>
+    <p class="desc">Reverse Mirrorは、N/Sなどの共通する軸を残しながら、その他の構造を反転させて「もう一つの自分」を探す類型ツールです。</p>
   </header>
 
   <main>
-    <!-- 入力フォームは画像保存の対象外にする！ -->
     <section class="input-section">
       <h3><i class="ph ph-user-circle"></i> あなたの自認を入力</h3>
       <p class="sub-desc">すべて埋めなくてもOK！分かるものだけ入力してね。</p>
       
       <div class="form-grid">
-        <div class="input-group">
-          <label>MBTI</label>
-          <input type="text" id="mbti" placeholder="例: INTJ" maxlength="4">
-        </div>
-        <div class="input-group">
-          <label>Socionics</label>
-          <input type="text" id="socionics" placeholder="例: LII">
-        </div>
-        <div class="input-group">
-          <label>Psychosophy</label>
-          <input type="text" id="psycho" placeholder="例: LVFE" maxlength="4">
-        </div>
-        <div class="input-group">
-          <label>Enneagram</label>
-          <input type="text" id="ennea" placeholder="例: 5W6" maxlength="3">
-        </div>
-        <div class="input-group">
-          <label>Tritype</label>
-          <input type="text" id="tritype" placeholder="例: 513" maxlength="3">
-        </div>
-        <div class="input-group">
-          <label>Instincts (生得本能)</label>
-          <input type="text" id="instinct" placeholder="例: SP/SO" maxlength="5">
-        </div>
-        <div class="input-group">
-          <label>DCNH</label>
-          <input type="text" id="dcnh" placeholder="例: N または NC" maxlength="2">
-        </div>
-        <div class="input-group">
-          <label>Classic Jung</label>
-          <input type="text" id="jung" placeholder="例: IT(N) または IT">
-        </div>
-        <div class="input-group">
-          <label>Amatorica (アマトリカ)</label>
-          <input type="text" id="amatorica" placeholder="例: FSEA" maxlength="4">
-        </div>
-        <div class="input-group">
-          <label>Temporistics (テンポリスティックス)</label>
-          <input type="text" id="tempo" placeholder="例: VBPN" maxlength="4">
-        </div>
+        <div class="input-group"><label>MBTI</label><input type="text" id="mbti" placeholder="例: INTJ" maxlength="4"></div>
+        <div class="input-group"><label>Socionics</label><input type="text" id="socionics" placeholder="例: LII"></div>
+        <div class="input-group"><label>Psychosophy</label><input type="text" id="psycho" placeholder="例: LVFE" maxlength="4"></div>
+        <div class="input-group"><label>Enneagram</label><input type="text" id="ennea" placeholder="例: 5w6" maxlength="3"></div>
+        <div class="input-group"><label>Tritype</label><input type="text" id="tritype" placeholder="例: 513" maxlength="3"></div>
+        <div class="input-group"><label>Instincts (生得本能)</label><input type="text" id="instinct" placeholder="例: sp/so" maxlength="5"></div>
+        <div class="input-group"><label>DCNH</label><input type="text" id="dcnh" placeholder="例: N または NC" maxlength="2"></div>
+        <div class="input-group"><label>Classic Jung</label><input type="text" id="jung" placeholder="例: IT(N) または IT"></div>
+        <div class="input-group"><label>Amatorica (アマトリカ)</label><input type="text" id="amatorica" placeholder="例: FSEA" maxlength="4"></div>
+        <div class="input-group"><label>Temporistics (テンポリスティックス)</label><input type="text" id="tempo" placeholder="例: VBPN" maxlength="4"></div>
       </div>
 
-      <button id="reverse-btn" class="reverse-btn">
-        <i class="ph ph-arrows-clockwise"></i> Reverse!
-      </button>
+      <button id="reverse-btn" class="reverse-btn"><i class="ph ph-arrows-clockwise"></i> Reverse!</button>
     </section>
 
-    <!-- ここから下だけを画像として保存する！ -->
     <section id="result-section" class="result-section hidden">
       <div id="export-container" class="capture-area">
         
-        <!-- 自認のカード群 -->
-        <div class="result-block">
+        <!-- 画像保存時のみ一瞬だけ表示される「My Type(白)」 -->
+        <div id="my-type-section" class="result-block" style="display: none; margin-bottom: 30px;">
           <h4 class="block-title"><i class="ph ph-user-circle"></i> My Type</h4>
           <div class="reversi-board" id="my-type-board"></div>
         </div>
 
-        <!-- 反転のカード群 -->
-        <div class="result-block" style="margin-top: 30px;">
-          <h4 class="block-title"><i class="ph ph-magic-wand"></i> Reverse Mirror</h4>
+        <!-- 普段から表示されてパタパタ裏返る「Reverse(黒)」 -->
+        <div id="reverse-section" class="result-block">
+          <h3 id="main-result-title" style="text-align: center; margin-bottom: 20px;"><i class="ph ph-magic-wand"></i> Your Reverse Mirror</h3>
+          <h4 id="reverse-title" class="block-title" style="display: none;"><i class="ph ph-magic-wand"></i> Reverse Mirror</h4>
           <div class="reversi-board" id="reverse-board"></div>
         </div>
 
@@ -153,9 +114,6 @@
     </div>
   </main>
 
-  <script src="script.js"></script>
-</body>
-</html>
   <script src="script.js"></script>
 </body>
 </html>
