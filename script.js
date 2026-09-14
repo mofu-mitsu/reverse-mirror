@@ -1,10 +1,6 @@
-// 新しいGAS URLをセット！
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwvWAFJhcpLH_aWxxNord2Cc6SCl2MbpkoB0qiiGjeoDF0QCKKOHY44J_QpwIYgk_iv/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 【修正】スマホのIME入力バグを引き起こしていた、JSの強制大文字変換は削除しました！
-    // (CSSの力で見た目だけ大文字になります！)
-
     const reverseBtn = document.getElementById("reverse-btn");
     const resultSection = document.getElementById("result-section");
     const myTypeBoard = document.getElementById("my-type-board");
@@ -13,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const shareBtn = document.getElementById("share-btn");
 
     reverseBtn.addEventListener("click", () => {
-        // ボードをクリア
         myTypeBoard.innerHTML = ''; 
         reverseBoard.innerHTML = ''; 
 
@@ -39,28 +34,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const rawVal = item.val.trim();
             if (rawVal) {
                 hasInput = true;
-                // ここで大文字にしてからカードにするので、画像保存時も確実に大文字になる！
                 const originalUpper = rawVal.toUpperCase();
                 const reversedUpper = item.func(originalUpper).toUpperCase();
                 
-                // 1. My Type ボードに白カードを作る
+                // 画像保存用の白カード (普段は隠れてる)
                 createStaticCard(key, originalUpper);
-                
-                // 2. Reverse ボードにフリップカードを作る
+                // 画面演出用のオセロカード
                 createFlipCard(key, originalUpper, reversedUpper);
                 
-                payloadToGAS[key] = {
-                    original: originalUpper,
-                    reverse: reversedUpper
-                };
+                payloadToGAS[key] = { original: originalUpper, reverse: reversedUpper };
             }
         }
 
         if (hasInput) {
             resultSection.classList.remove("hidden");
+            
+            // 💡 アニメーションを確実に発火させる魔法の1行！
+            void resultSection.offsetWidth; 
+
             sendDataToGAS(payloadToGAS);
 
-            // フリップカードが順番にパタパタ裏返る！
+            // 🪞 パタパタ裏返るエモいオセロ演出が復活！！
             setTimeout(() => {
                 const cards = document.querySelectorAll('.flip-card');
                 cards.forEach((card, index) => {
@@ -68,24 +62,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         card.classList.add('flipped');
                     }, index * 150);
                 });
-            }, 100);
+            }, 50); 
         } else {
             alert("最低一つはタイプを入力してね！");
         }
     });
 
-    // 👤 自認用の静的な白カードを作る関数
     function createStaticCard(title, value) {
         const card = document.createElement("div");
         card.className = "static-card";
-        card.innerHTML = `
-            <div class="card-title">${title}</div>
-            <div class="card-value">${value}</div>
-        `;
+        card.innerHTML = `<div class="card-title">${title}</div><div class="card-value">${value}</div>`;
         myTypeBoard.appendChild(card);
     }
 
-    // 🪞 反転用のフリップカードを作る関数
     function createFlipCard(title, original, reversed) {
         const card = document.createElement("div");
         card.className = "flip-card";
@@ -104,16 +93,25 @@ document.addEventListener("DOMContentLoaded", () => {
         reverseBoard.appendChild(card);
     }
 
-    // --- 画像保存ロジック（キャプチャバグ完全回避） ---
+    // --- 📸 画像保存ロジック（キャプチャ時のみMy Typeを出現させる！） ---
     saveBtn.addEventListener("click", () => {
         const target = document.getElementById("export-container");
+        const myTypeSec = document.getElementById("my-type-section");
+        const revTitle = document.getElementById("reverse-title");
+        const mainTitle = document.getElementById("main-result-title");
         
-        // 3Dバグ回避クラスをつける
-        target.classList.add("capture-mode");
+        // 1. キャプチャする瞬間だけ、My Type(白カード)を表示して並べる！
+        myTypeSec.style.display = "block";
+        revTitle.style.display = "flex";
+        mainTitle.style.display = "none";
+        target.classList.add("capture-mode"); // スケスケバグ対策
 
         setTimeout(() => {
             html2canvas(target, { backgroundColor: "#f7f9fa", scale: 2 }).then(canvas => {
-                // キャプチャが終わったら元に戻す
+                // 2. キャプチャが終わったら、元の状態(オセロ版のみ)に戻す！
+                myTypeSec.style.display = "none";
+                revTitle.style.display = "none";
+                mainTitle.style.display = "block";
                 target.classList.remove("capture-mode");
 
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
@@ -133,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150); 
     });
 
-    // モーダルを閉じる
     document.getElementById("modal-close").addEventListener("click", () => {
         document.getElementById("image-modal").classList.add("hidden");
     });
