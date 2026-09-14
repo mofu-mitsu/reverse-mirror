@@ -8,7 +8,6 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
 
 .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--white); border-bottom: 1px solid var(--border); font-size: 0.9rem; }
@@ -25,11 +24,6 @@ body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg-color
 
 main { max-width: 800px; margin: 0 auto; padding: 20px; }
 
-#export-container {
-  padding: 10px;
-  background-color: var(--bg-color); /* 保存時に背景が白浮きしないようにする */
-}
-
 .input-section { background: var(--white); padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 30px; }
 .input-section h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
 .sub-desc { font-size: 0.85rem; color: #888; margin-bottom: 20px; }
@@ -45,21 +39,53 @@ main { max-width: 800px; margin: 0 auto; padding: 20px; }
 .result-section { animation: fadeIn 0.5s ease; margin-bottom: 30px; }
 .hidden { display: none !important; }
 
-.reversi-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; padding: 0 10px; }
+/* 画像保存されるエリアのデザイン */
+.capture-area { background-color: var(--bg-color); padding: 30px 20px; border-radius: 12px; }
+.block-title { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 1.2rem; font-weight: 900; border-bottom: 2px solid var(--border); padding-bottom: 5px;}
 
-.flip-card { background-color: transparent; width: 100%; height: 110px; perspective: 1000px; }
+.reversi-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; }
+
+/* 👤 My Type 用の静的な白カード */
+.static-card {
+  background-color: var(--white);
+  color: var(--black);
+  border: 2px solid var(--black);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.static-card .card-title { font-size: 0.75rem; opacity: 0.8; margin-bottom: 5px; }
+.static-card .card-value { font-size: 1.3rem; font-weight: bold; }
+
+/* 🪞 Reverse 用のフリップカード */
+.flip-card { background-color: transparent; width: 100%; height: 90px; perspective: 1000px; }
 .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
 .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px; padding: 10px; }
 
 .flip-card-front { background-color: var(--white); color: var(--black); border: 2px solid var(--black); }
-/* 裏面はシンプルに黒地に白文字 */
 .flip-card-back { background-color: var(--black); color: var(--white); transform: rotateY(180deg); border: 2px solid var(--black); }
 
 .card-title { font-size: 0.75rem; opacity: 0.8; margin-bottom: 5px; }
 .card-value { font-size: 1.3rem; font-weight: bold; }
 
-.action-buttons { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+/* 📸 キャプチャバグ(灰色・スケスケ)対策！確実に表面を消して裏面を平面化する */
+.capture-mode .flip-card-inner { transform: none !important; transition: none !important; }
+.capture-mode .flip-card.flipped .flip-card-front { display: none !important; }
+.capture-mode .flip-card.flipped .flip-card-back { 
+  transform: none !important; 
+  position: relative !important; 
+  display: flex !important; 
+  backface-visibility: visible !important; 
+  z-index: 10; 
+}
+
+.action-buttons { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; margin-top: 20px;}
 .action-btn { background: var(--white); border: 2px solid var(--black); color: var(--black); padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
 .action-btn:hover { background: var(--black); color: var(--white); }
 
@@ -67,96 +93,16 @@ main { max-width: 800px; margin: 0 auto; padding: 20px; }
 .explanation-box h4 { display: flex; align-items: center; gap: 8px; margin-top: 20px; margin-bottom: 10px; }
 .explanation-box h4:first-child { margin-top: 0; }
 .explanation-box p { font-size: 0.95rem; color: #444; }
-.disclaimer { font-size: 0.8rem; color: #888; text-align: center; }
+
+/* スマホ用保存モーダル */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; opacity: 1; transition: opacity 0.3s; }
+.modal-content { background: var(--white); border-radius: 12px; padding: 15px; width: 100%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.modal-header p { font-weight: bold; color: var(--black); display: flex; align-items: center; gap: 5px; margin: 0; }
+.close-btn { font-size: 1.2rem; cursor: pointer; background: var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; color: var(--black); transition: 0.2s; }
+.close-btn:hover { background: #d1d5db; }
+.modal-body { overflow-y: auto; border-radius: 8px; background: var(--bg-color); }
+.modal-body img { width: 100%; height: auto; display: block; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 600px) { .header h1 { font-size: 2rem; } .form-grid { grid-template-columns: 1fr 1fr; } .action-buttons { flex-direction: column; padding: 0 20px; } .action-btn { width: 100%; justify-content: center; } }
-
-/* --- 既存のCSSの下に追加 --- */
-
-/* input内の文字を強制的に大文字（見かけだけ）にする */
-.input-group input { 
-    text-transform: uppercase; 
-}
-
-/* === 📸 画像保存(html2canvas)対策用クラス === */
-/* html2canvasが3Dエフェクトでバグるのを防ぐため、保存の瞬間だけペラペラの黒カードにする */
-.capture-mode .flip-card-inner {
-    transform: none !important;
-    transition: none !important;
-}
-.capture-mode .flip-card-front {
-    display: none !important;
-}
-.capture-mode .flip-card-back {
-    transform: none !important;
-    position: relative !important;
-    z-index: 10 !important;
-    backface-visibility: visible !important;
-}
-
-/* === 📱 スマホ用保存モーダル === */
-.modal {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    opacity: 1;
-    transition: opacity 0.3s;
-}
-.modal.hidden {
-    display: none !important;
-    opacity: 0;
-}
-.modal-content {
-    background: var(--white);
-    border-radius: 12px;
-    padding: 15px;
-    width: 100%;
-    max-width: 500px;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-.modal-header p {
-    font-weight: bold;
-    color: var(--black);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin: 0;
-}
-.close-btn {
-    font-size: 1.2rem;
-    cursor: pointer;
-    background: var(--border);
-    border-radius: 50%;
-    width: 32px; height: 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--black);
-    transition: 0.2s;
-}
-.close-btn:hover { background: #d1d5db; }
-.modal-body {
-    overflow-y: auto;
-    border-radius: 8px;
-    background: var(--bg-color);
-}
-.modal-body img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
+@media (max-width: 600px) { .header h1 { font-size: 2rem; } .form-grid { grid-template-columns: 1fr 1fr; } .action-buttons { flex-direction: column; } .action-btn { width: 100%; justify-content: center; } }
