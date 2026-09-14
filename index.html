@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNTX973GET"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GNTX973GET');
+    </script>
   <title>Reverse Mirror - 似ているのに、真逆。「もう一つの自分」を探す類型ツール</title>
   <meta name="description" content="Reverse Mirrorは、MBTIやソシオニクス(監督関係)などの共通軸を残し、残りを反転させる「もう一つの自分」を探す類型ツールです。共通点があるから分かり合え、違いがあるから補い合える。">
-  <meta name="keywords" content="Reverse Mirror, MBTI, ソシオニクス, エニアグラム, サイコソフィア, トライタイプ, 監督関係, 類型, 16タイプ">
   
   <meta property="og:title" content="Reverse Mirror - 似ているのに、真逆。">
   <meta property="og:description" content="共通点があるから分かり合え、違いがあるから補い合える。あなたのReverse Mirrorはどんなタイプ？">
@@ -16,7 +22,6 @@
   
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Reverse Mirror - 似ているのに、真逆。">
-  <meta name="twitter:description" content="あなたの自認を反転させて、「もう一つの自分」を探すツール。">
   <meta name="twitter:image" content="https://mofu-mitsu.github.io/reverse-mirror/ogp.png">
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚪️</text></svg>">
@@ -47,16 +52,14 @@
     </h2>
     <p class="desc">
       Reverse Mirrorは、N/Sなどの共通する軸を残しながら、その他の構造を反転させて「もう一つの自分」を探す類型ツールです。<br>
-      共通点があるから分かり合え、違いがあるから補い合える。あなたのReverse Mirrorを探してみましょう。
+      あなたのReverse Mirrorを探してみましょう。
     </p>
   </header>
 
   <main>
-    <!-- 画像保存対象をまるっと囲うコンテナ -->
     <div id="export-container">
       
       <section class="input-section">
-        <!-- 画像化するときに隠す要素に hide-on-capture をつける -->
         <div class="hide-on-capture">
           <h3><i class="ph ph-user-circle"></i> あなたの自認を入力</h3>
           <p class="sub-desc">すべて埋めなくてもOK！分かるものだけ入力してね。</p>
@@ -77,7 +80,7 @@
           </div>
           <div class="input-group">
             <label>Enneagram</label>
-            <input type="text" id="ennea" placeholder="例: 5w6" maxlength="3">
+            <input type="text" id="ennea" placeholder="例: 5W6" maxlength="3">
           </div>
           <div class="input-group">
             <label>Tritype</label>
@@ -85,7 +88,7 @@
           </div>
           <div class="input-group">
             <label>Instincts (生得本能)</label>
-            <input type="text" id="instinct" placeholder="例: sp/so" maxlength="5">
+            <input type="text" id="instinct" placeholder="例: SP/SO" maxlength="5">
           </div>
           <div class="input-group">
             <label>DCNH</label>
@@ -113,46 +116,28 @@
       <section id="result-section" class="result-section hidden">
         <div class="capture-area">
           <h3 style="text-align: center; margin-bottom: 20px;"><i class="ph ph-magic-wand"></i> Your Reverse Mirror</h3>
-          
-          <div class="reversi-board" id="result-board">
-            <!-- JSでここにカードが生成されます -->
-          </div>
+          <div class="reversi-board" id="result-board"></div>
         </div>
       </section>
       
-    </div> <!-- // export-container 終了 -->
+    </div> 
 
-    <!-- アクションボタンは画像保存の外に置く -->
     <div id="action-buttons-area" class="action-buttons hidden">
       <button id="save-btn" class="action-btn"><i class="ph ph-download-simple"></i> 画像として保存</button>
       <button id="share-btn" class="action-btn"><i class="ph ph-share-network"></i> シェアする</button>
     </div>
 
-    <div class="explanation-box">
-      <h4><i class="ph ph-lightbulb"></i> この関係の面白さ</h4>
-      <p>
-        同じN型/S型だから、物事の捉え方や世界の見え方には共通点があります。<br>
-        一方で、それ以外の要素が反転しているため、判断や行動、人との関わり方には大きな違いが生まれます。<br>
-        <strong>「そこは分かる。でも、なんでそうするの！？」</strong><br>
-        そんな感覚が起こりやすいのがReverse Mirror。<br>
-        相手は自分と同じ世界を見ながら、自分とは違う方法でそこに向き合っているのかもしれません。
-      </p>
-
-      <h4><i class="ph ph-magnifying-glass"></i> Reverse Mirrorを探してみよう</h4>
-      <p>
-        あなたの周りにReverse Mirrorのタイプはいませんか？<br>
-        友達、家族、推し、創作キャラクター……「この人、なんか自分と似ているのに全然違うな」と思った相手が、実はあなたのReverse Mirrorかもしれません。
-      </p>
-
-      <h4><i class="ph ph-puzzle-piece"></i> Socionicsでは？</h4>
-      <p>
-        この組み合わせは、ソシオニクスでは<strong>「監督関係」</strong>にあたります。<br>
-        「似ている部分」と「自分とは違う部分」が同時に存在するからこそ、独特の刺激と関係性が生まれるのです。
-      </p>
-    </div>
-
-    <div class="disclaimer">
-      <p>※各類型体系の対応は、それぞれの理論・自認・コミュニティ上の分類によって異なります。<br>Reverse Mirrorでは「こう反転させるとどうなるか」という構造的な遊び・目安として表示しています。</p>
+    <!-- スマホ長押し保存用モーダル -->
+    <div id="image-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <p><i class="ph ph-hand-tap"></i> 画像を長押しして保存</p>
+          <span id="modal-close" class="close-btn"><i class="ph ph-x"></i></span>
+        </div>
+        <div class="modal-body">
+          <img id="modal-image" src="" alt="Reverse Mirror Result">
+        </div>
+      </div>
     </div>
   </main>
 
