@@ -57,75 +57,87 @@
   </header>
 
   <main>
-    <div id="export-container">
+    <!-- 入力フォームは画像保存の対象外にする！ -->
+    <section class="input-section">
+      <h3><i class="ph ph-user-circle"></i> あなたの自認を入力</h3>
+      <p class="sub-desc">すべて埋めなくてもOK！分かるものだけ入力してね。</p>
       
-      <section class="input-section">
-        <div class="hide-on-capture">
-          <h3><i class="ph ph-user-circle"></i> あなたの自認を入力</h3>
-          <p class="sub-desc">すべて埋めなくてもOK！分かるものだけ入力してね。</p>
+      <div class="form-grid">
+        <div class="input-group">
+          <label>MBTI</label>
+          <input type="text" id="mbti" placeholder="例: INTJ" maxlength="4">
         </div>
+        <div class="input-group">
+          <label>Socionics</label>
+          <input type="text" id="socionics" placeholder="例: LII">
+        </div>
+        <div class="input-group">
+          <label>Psychosophy</label>
+          <input type="text" id="psycho" placeholder="例: LVFE" maxlength="4">
+        </div>
+        <div class="input-group">
+          <label>Enneagram</label>
+          <input type="text" id="ennea" placeholder="例: 5W6" maxlength="3">
+        </div>
+        <div class="input-group">
+          <label>Tritype</label>
+          <input type="text" id="tritype" placeholder="例: 513" maxlength="3">
+        </div>
+        <div class="input-group">
+          <label>Instincts (生得本能)</label>
+          <input type="text" id="instinct" placeholder="例: SP/SO" maxlength="5">
+        </div>
+        <div class="input-group">
+          <label>DCNH</label>
+          <input type="text" id="dcnh" placeholder="例: N または NC" maxlength="2">
+        </div>
+        <div class="input-group">
+          <label>Classic Jung</label>
+          <input type="text" id="jung" placeholder="例: IT(N) または IT">
+        </div>
+        <div class="input-group">
+          <label>Amatorica (アマトリカ)</label>
+          <input type="text" id="amatorica" placeholder="例: FSEA" maxlength="4">
+        </div>
+        <div class="input-group">
+          <label>Temporistics (テンポリスティックス)</label>
+          <input type="text" id="tempo" placeholder="例: VBPN" maxlength="4">
+        </div>
+      </div>
+
+      <button id="reverse-btn" class="reverse-btn">
+        <i class="ph ph-arrows-clockwise"></i> Reverse!
+      </button>
+    </section>
+
+    <!-- ここから下だけを画像として保存する！ -->
+    <section id="result-section" class="result-section hidden">
+      <div id="export-container" class="capture-area">
         
-        <div class="form-grid">
-          <div class="input-group">
-            <label>MBTI</label>
-            <input type="text" id="mbti" placeholder="例: INTJ" maxlength="4">
-          </div>
-          <div class="input-group">
-            <label>Socionics</label>
-            <input type="text" id="socionics" placeholder="例: LII">
-          </div>
-          <div class="input-group">
-            <label>Psychosophy</label>
-            <input type="text" id="psycho" placeholder="例: LVFE" maxlength="4">
-          </div>
-          <div class="input-group">
-            <label>Enneagram</label>
-            <input type="text" id="ennea" placeholder="例: 5W6" maxlength="3">
-          </div>
-          <div class="input-group">
-            <label>Tritype</label>
-            <input type="text" id="tritype" placeholder="例: 513" maxlength="3">
-          </div>
-          <div class="input-group">
-            <label>Instincts (生得本能)</label>
-            <input type="text" id="instinct" placeholder="例: SP/SO" maxlength="5">
-          </div>
-          <div class="input-group">
-            <label>DCNH</label>
-            <input type="text" id="dcnh" placeholder="例: N または NC" maxlength="2">
-          </div>
-          <div class="input-group">
-            <label>Classic Jung</label>
-            <input type="text" id="jung" placeholder="例: IT(N) または IT">
-          </div>
-          <div class="input-group">
-            <label>Amatorica (アマトリカ)</label>
-            <input type="text" id="amatorica" placeholder="例: FSEA" maxlength="4">
-          </div>
-          <div class="input-group">
-            <label>Temporistics (テンポリスティックス)</label>
-            <input type="text" id="tempo" placeholder="例: VBPN" maxlength="4">
-          </div>
+        <!-- 自認のカード群 -->
+        <div class="result-block">
+          <h4 class="block-title"><i class="ph ph-user-circle"></i> My Type</h4>
+          <div class="reversi-board" id="my-type-board"></div>
         </div>
 
-        <button id="reverse-btn" class="reverse-btn hide-on-capture">
-          <i class="ph ph-arrows-clockwise"></i> Reverse!
-        </button>
-      </section>
-
-      <section id="result-section" class="result-section hidden">
-        <div class="capture-area">
-          <h3 style="text-align: center; margin-bottom: 20px;"><i class="ph ph-magic-wand"></i> Your Reverse Mirror</h3>
-          <div class="reversi-board" id="result-board"></div>
+        <!-- 反転のカード群 -->
+        <div class="result-block" style="margin-top: 30px;">
+          <h4 class="block-title"><i class="ph ph-magic-wand"></i> Reverse Mirror</h4>
+          <div class="reversi-board" id="reverse-board"></div>
         </div>
-      </section>
-      
-    </div> 
 
-    <div id="action-buttons-area" class="action-buttons hidden">
-      <button id="save-btn" class="action-btn"><i class="ph ph-download-simple"></i> 画像として保存</button>
-      <button id="share-btn" class="action-btn"><i class="ph ph-share-network"></i> シェアする</button>
-    </div>
+      </div>
+
+      <div id="action-buttons-area" class="action-buttons">
+        <button id="save-btn" class="action-btn"><i class="ph ph-download-simple"></i> 画像として保存</button>
+        <button id="share-btn" class="action-btn"><i class="ph ph-share-network"></i> シェアする</button>
+      </div>
+
+      <div class="explanation-box">
+        <h4><i class="ph ph-lightbulb"></i> この関係の面白さ</h4>
+        <p>同じN型/S型だから、物事の捉え方や世界の見え方には共通点があります。一方で、それ以外の要素が反転しているため、判断や行動、人との関わり方には大きな違いが生まれます。<strong>「そこは分かる。でも、なんでそうするの！？」</strong>そんな感覚が起こりやすいのがReverse Mirrorです。</p>
+      </div>
+    </section>
 
     <!-- スマホ長押し保存用モーダル -->
     <div id="image-modal" class="modal hidden">
@@ -141,6 +153,9 @@
     </div>
   </main>
 
+  <script src="script.js"></script>
+</body>
+</html>
   <script src="script.js"></script>
 </body>
 </html>
