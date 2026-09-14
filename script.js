@@ -94,11 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
         reverseBoard.appendChild(card);
     }
 
-    // --- 📸 画像保存ロジック（めっちゃシンプルになった！） ---
+    // --- 📸 画像保存ロジック ---
     saveBtn.addEventListener("click", () => {
         const target = document.getElementById("export-container");
         
-        // 💡 キャプチャする瞬間だけ、フリップカードの裏面（黒）を平面にする（スケスケ対策）
+        // キャプチャする瞬間だけ、フリップカードの裏面（黒）を平面にする（スケスケ対策）
         target.classList.add("capture-mode");
 
         setTimeout(() => {
@@ -149,34 +149,47 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 各類型の変換ロジック (変更なし) ---
+    // --- 各類型の変換ロジック ---
     function getNSFromInputs() {
         const mbti = document.getElementById("mbti").value.toUpperCase();
         const socio = document.getElementById("socionics").value.toUpperCase();
-        if (mbti.includes('N') || socio.includes('N') || socio.includes('ILE') || socio.includes('LII') || socio.includes('EIE') || socio.includes('IEI') || socio.includes('ILI') || socio.includes('LIE') || socio.includes('EII') || socio.includes('IEE')) return 'N';
-        if (mbti.includes('S') || socio.includes('S') || socio.includes('SEI') || socio.includes('ESE') || socio.includes('LSI') || socio.includes('SLE') || socio.includes('SEE') || socio.includes('ESI') || socio.includes('LSE') || socio.includes('SLI')) return 'S';
+        
+        const nTypes = ['ILE', 'LII', 'EIE', 'IEI', 'ILI', 'LIE', 'EII', 'IEE'];
+        const sTypes = ['SEI', 'ESE', 'LSI', 'SLE', 'SEE', 'ESI', 'LSE', 'SLI'];
+        
+        if (mbti.includes('N') || socio.includes('N') || nTypes.some(t => socio.includes(t))) return 'N';
+        if (mbti.includes('S') || socio.includes('S') || sTypes.some(t => socio.includes(t))) return 'S';
         return null;
     }
+
     function getTFFromInputs() {
         const mbti = document.getElementById("mbti").value.toUpperCase();
         const socio = document.getElementById("socionics").value.toUpperCase();
-        if (mbti.includes('T') || socio.includes('T') || socio.includes('LII') || socio.includes('LSI') || socio.includes('ILE') || socio.includes('SLE') || socio.includes('ILI') || socio.includes('SLI') || socio.includes('LIE') || socio.includes('LSE')) return 'T';
-        if (mbti.includes('F') || socio.includes('F') || socio.includes('EIE') || socio.includes('ESE') || socio.includes('SEI') || socio.includes('IEI') || socio.includes('ESI') || socio.includes('SEE') || socio.includes('EII') || socio.includes('IEE')) return 'F';
+
+        const tTypes = ['LII', 'LSI', 'ILE', 'SLE', 'ILI', 'SLI', 'LIE', 'LSE'];
+        const fTypes = ['EIE', 'ESE', 'SEI', 'IEI', 'ESI', 'SEE', 'EII', 'IEE'];
+
+        if (mbti.includes('T') || socio.includes('T') || tTypes.some(t => socio.includes(t))) return 'T';
+        if (mbti.includes('F') || socio.includes('F') || fTypes.some(t => socio.includes(t))) return 'F';
         return null;
     }
+
     function reverseMBTI(val) {
         const map = { 'E':'I', 'I':'E', 'N':'N', 'S':'S', 'T':'F', 'F':'T', 'J':'P', 'P':'J' };
         return val.toUpperCase().split('').map(c => map[c] || c).join('');
     }
+
     function reverseSocionics(val) {
         const map3 = { "ILE":"EII", "SEI":"LSE", "ESE":"SLI", "LII":"IEE", "EIE":"ILI", "LSI":"SEE", "SLE":"ESI", "IEI":"LIE", "SEE":"LSI", "ILI":"EIE", "LIE":"IEI", "ESI":"SLE", "LSE":"SEI", "EII":"ILE", "IEE":"LII", "SLI":"ESE" };
-        if (map3[val.toUpperCase()]) return map3[val.toUpperCase()];
+        const v = val.toUpperCase();
+        if (map3[v]) return map3[v];
         if (val.length === 4) {
             const map = { 'E':'I', 'I':'E', 'N':'N', 'S':'S', 'T':'F', 'F':'T', 'J':'P', 'P':'J', 'j':'p', 'p':'j' };
             return val.split('').map(c => map[c.toUpperCase()] ? (c === c.toLowerCase() ? map[c.toUpperCase()].toLowerCase() : map[c.toUpperCase()]) : c).join('');
         }
         return val;
     }
+
     function reversePsycho(val) {
         const psychoMap = { "LVFE":"EVLF", "EVLF":"LVFE", "LVEF":"EVFL", "EVFL":"LVEF", "VLFE":"ELVF", "ELVF":"VLFE", "LFEV":"EFVL", "EFVL":"LFEV", "LFVE":"EFLV", "EFLV":"LFVE", "FLVE":"LEFV", "LEFV":"FLVE", "VLEF":"FELV", "FVLE":"FELV" };
         const v = val.toUpperCase();
@@ -185,14 +198,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (v.length === 4) return v[3] + v[1] + v[0] + v[2];
         return val;
     }
+
     function reverseAmatorica(val) {
         const v = val.toUpperCase();
         return v.length === 4 ? v[3] + v[1] + v[0] + v[2] : val;
     }
+
     function reverseEnneagram(val) {
         const map = { "1W2":"7W8", "1W9":"6W7", "2W1":"9W8", "2W3":"5W4", "3W2":"4W3", "3W4":"4W5", "4W3":"3W2", "4W5":"3W4", "5W4":"2W3", "5W6":"7W6", "6W5":"8W7", "6W7":"1W9", "7W6":"5W6", "7W8":"1W2", "8W7":"6W5", "8W9":"9W1", "9W1":"8W9", "9W8":"2W1" };
         return map[val.toUpperCase()] || val;
     }
+
     function reverseTritype(val, enneaVal) {
         const centerMap = { '5':'head', '6':'head', '7':'head', '2':'heart', '3':'heart', '4':'heart', '8':'gut', '9':'gut', '1':'gut' };
         const defaultFlip = { '5':'7', '7':'6', '6':'5', '2':'4', '4':'3', '3':'2', '8':'1', '1':'9', '9':'8' };
@@ -214,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         return res.join('');
     }
+
     function reverseInstincts(val) {
         const v = val.toLowerCase();
         if (!v.includes('/')) return val;
@@ -221,22 +238,38 @@ document.addEventListener("DOMContentLoaded", () => {
         const blind = ['sp', 'so', 'sx'].find(x => x !== f && x !== s);
         return blind ? `${blind}/${s}` : val;
     }
+
     function reverseDCNH(val) {
         const map = { 'D':'H', 'H':'D', 'C':'N', 'N':'C' };
         return val.toUpperCase().split('').map(c => map[c] || c).join('');
     }
+
     function reverseJung(val) {
-        let v = val.toUpperCase().replace(/\s+/g, '');
-        const ns = getNSFromInputs(), tf = getTFFromInputs();
+        // 💡 全角カッコ「（ ）」が入力されても半角「( )」に自動変換して処理するよ！
+        let v = val.toUpperCase().replace(/\s+/g, '').replace(/（/g, '(').replace(/）/g, ')');
+        const ns = getNSFromInputs();
+        const tf = getTFFromInputs();
+
         const match = v.match(/^([EI])([NSTF])(?:\(([NSTF])\))?$/);
         if (!match) return val; 
-        let att = match[1], f1 = match[2], f2 = match[3];
+        
+        let att = match[1];
+        let f1 = match[2];
+        let f2 = match[3];
+
         if (!f2) {
             if (['T', 'F'].includes(f1) && ns) f2 = ns;
             else if (['N', 'S'].includes(f1) && tf) f2 = tf;
         }
+
         att = att === 'E' ? 'I' : 'E';
-        const flipFunc = x => x === 'T' ? 'F' : (x === 'F' ? 'T' : x);
-        return f2 ? `${att}${flipFunc(f2)}(${flipFunc(f1)})` : `${att}${flipFunc(f1)}`; 
+        const flipFunc = x => (x === 'T' ? 'F' : (x === 'F' ? 'T' : x));
+        
+        if (f2) {
+            return `${att}${flipFunc(f2)}(${flipFunc(f1)})`;
+        } else {
+            return `${att}${flipFunc(f1)}`; 
+        }
     }
 });
+// 👆 ここまでしっかりコピーしてね！！
