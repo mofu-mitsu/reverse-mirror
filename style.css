@@ -71,3 +71,92 @@ main { max-width: 800px; margin: 0 auto; padding: 20px; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 600px) { .header h1 { font-size: 2rem; } .form-grid { grid-template-columns: 1fr 1fr; } .action-buttons { flex-direction: column; padding: 0 20px; } .action-btn { width: 100%; justify-content: center; } }
+
+/* --- 既存のCSSの下に追加 --- */
+
+/* input内の文字を強制的に大文字（見かけだけ）にする */
+.input-group input { 
+    text-transform: uppercase; 
+}
+
+/* === 📸 画像保存(html2canvas)対策用クラス === */
+/* html2canvasが3Dエフェクトでバグるのを防ぐため、保存の瞬間だけペラペラの黒カードにする */
+.capture-mode .flip-card-inner {
+    transform: none !important;
+    transition: none !important;
+}
+.capture-mode .flip-card-front {
+    display: none !important;
+}
+.capture-mode .flip-card-back {
+    transform: none !important;
+    position: relative !important;
+    z-index: 10 !important;
+    backface-visibility: visible !important;
+}
+
+/* === 📱 スマホ用保存モーダル === */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+.modal.hidden {
+    display: none !important;
+    opacity: 0;
+}
+.modal-content {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 15px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.modal-header p {
+    font-weight: bold;
+    color: var(--black);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+}
+.close-btn {
+    font-size: 1.2rem;
+    cursor: pointer;
+    background: var(--border);
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--black);
+    transition: 0.2s;
+}
+.close-btn:hover { background: #d1d5db; }
+.modal-body {
+    overflow-y: auto;
+    border-radius: 8px;
+    background: var(--bg-color);
+}
+.modal-body img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
