@@ -223,4 +223,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function reverseDCNH(val) {
         const map = { 'D':'H', 'H':'D', 'C':'N', 'N':'C' };
-        return val.toUpperCase().split('').map(c => map[c] || c).join(''
+        return val.toUpperCase().split('').map(c => map[c] || c).join('');
+    }
+    function reverseJung(val) {
+        let v = val.toUpperCase().replace(/\s+/g, '');
+        const ns = getNSFromInputs(), tf = getTFFromInputs();
+        const match = v.match(/^([EI])([NSTF])(?:\(([NSTF])\))?$/);
+        if (!match) return val; 
+        let att = match[1], f1 = match[2], f2 = match[3];
+        if (!f2) {
+            if (['T', 'F'].includes(f1) && ns) f2 = ns;
+            else if (['N', 'S'].includes(f1) && tf) f2 = tf;
+        }
+        att = att === 'E' ? 'I' : 'E';
+        const flipFunc = x => x === 'T' ? 'F' : (x === 'F' ? 'T' : x);
+        return f2 ? `${att}${flipFunc(f2)}(${flipFunc(f1)})` : `${att}${flipFunc(f1)}`; 
+    }
+});
