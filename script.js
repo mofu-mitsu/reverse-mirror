@@ -37,9 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const originalUpper = rawVal.toUpperCase();
                 const reversedUpper = item.func(originalUpper).toUpperCase();
                 
-                // 画像保存用の白カード (普段は隠れてる)
+                // 👤 常に表示される自認用の白カード
                 createStaticCard(key, originalUpper);
-                // 画面演出用のオセロカード
+                
+                // 🪞 常に表示されてパタパタ裏返る演出用のオセロカード
                 createFlipCard(key, originalUpper, reversedUpper);
                 
                 payloadToGAS[key] = { original: originalUpper, reverse: reversedUpper };
@@ -49,12 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (hasInput) {
             resultSection.classList.remove("hidden");
             
-            // 💡 アニメーションを確実に発火させる魔法の1行！
+            // アニメーションを確実に発火させる
             void resultSection.offsetWidth; 
 
             sendDataToGAS(payloadToGAS);
 
-            // 🪞 パタパタ裏返るエモいオセロ演出が復活！！
+            // フリップカードの裏返り演出
             setTimeout(() => {
                 const cards = document.querySelectorAll('.flip-card');
                 cards.forEach((card, index) => {
@@ -85,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="card-value">${original}</div>
                 </div>
                 <div class="flip-card-back">
-                    <div class="card-title">${title}</div>
+                    <div class="card-title">${title} (Reverse)</div>
                     <div class="card-value">${reversed}</div>
                 </div>
             </div>
@@ -93,25 +94,16 @@ document.addEventListener("DOMContentLoaded", () => {
         reverseBoard.appendChild(card);
     }
 
-    // --- 📸 画像保存ロジック（キャプチャ時のみMy Typeを出現させる！） ---
+    // --- 📸 画像保存ロジック（めっちゃシンプルになった！） ---
     saveBtn.addEventListener("click", () => {
         const target = document.getElementById("export-container");
-        const myTypeSec = document.getElementById("my-type-section");
-        const revTitle = document.getElementById("reverse-title");
-        const mainTitle = document.getElementById("main-result-title");
         
-        // 1. キャプチャする瞬間だけ、My Type(白カード)を表示して並べる！
-        myTypeSec.style.display = "block";
-        revTitle.style.display = "flex";
-        mainTitle.style.display = "none";
-        target.classList.add("capture-mode"); // スケスケバグ対策
+        // 💡 キャプチャする瞬間だけ、フリップカードの裏面（黒）を平面にする（スケスケ対策）
+        target.classList.add("capture-mode");
 
         setTimeout(() => {
             html2canvas(target, { backgroundColor: "#f7f9fa", scale: 2 }).then(canvas => {
-                // 2. キャプチャが終わったら、元の状態(オセロ版のみ)に戻す！
-                myTypeSec.style.display = "none";
-                revTitle.style.display = "none";
-                mainTitle.style.display = "block";
+                // キャプチャが終わったら元に戻す
                 target.classList.remove("capture-mode");
 
                 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
@@ -231,20 +223,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function reverseDCNH(val) {
         const map = { 'D':'H', 'H':'D', 'C':'N', 'N':'C' };
-        return val.toUpperCase().split('').map(c => map[c] || c).join('');
-    }
-    function reverseJung(val) {
-        let v = val.toUpperCase().replace(/\s+/g, '');
-        const ns = getNSFromInputs(), tf = getTFFromInputs();
-        const match = v.match(/^([EI])([NSTF])(?:\(([NSTF])\))?$/);
-        if (!match) return val; 
-        let att = match[1], f1 = match[2], f2 = match[3];
-        if (!f2) {
-            if (['T', 'F'].includes(f1) && ns) f2 = ns;
-            else if (['N', 'S'].includes(f1) && tf) f2 = tf;
-        }
-        att = att === 'E' ? 'I' : 'E';
-        const flipFunc = x => x === 'T' ? 'F' : (x === 'F' ? 'T' : x);
-        return f2 ? `${att}${flipFunc(f2)}(${flipFunc(f1)})` : `${att}${flipFunc(f1)}`; 
-    }
-});
+        return val.toUpperCase().split('').map(c => map[c] || c).join(''
