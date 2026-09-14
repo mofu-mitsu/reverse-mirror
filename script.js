@@ -1,22 +1,22 @@
+// 新しいGAS URLをセット！
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwvWAFJhcpLH_aWxxNord2Cc6SCl2MbpkoB0qiiGjeoDF0QCKKOHY44J_QpwIYgk_iv/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 💡 入力された文字を物理的に大文字に変換（画像保存時に小文字になるバグ対策）
-    document.querySelectorAll('.input-group input').forEach(input => {
-        input.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
-        });
-    });
+    // 【修正】スマホのIME入力バグを引き起こしていた、JSの強制大文字変換は削除しました！
+    // (CSSの力で見た目だけ大文字になります！)
 
     const reverseBtn = document.getElementById("reverse-btn");
     const resultSection = document.getElementById("result-section");
-    const resultBoard = document.getElementById("result-board");
-    const actionBtns = document.getElementById("action-buttons-area");
+    const myTypeBoard = document.getElementById("my-type-board");
+    const reverseBoard = document.getElementById("reverse-board");
     const saveBtn = document.getElementById("save-btn");
     const shareBtn = document.getElementById("share-btn");
 
     reverseBtn.addEventListener("click", () => {
-        resultBoard.innerHTML = ''; 
+        // ボードをクリア
+        myTypeBoard.innerHTML = ''; 
+        reverseBoard.innerHTML = ''; 
+
         const enneaVal = document.getElementById("ennea").value.trim();
         let payloadToGAS = {}; 
 
@@ -39,21 +39,28 @@ document.addEventListener("DOMContentLoaded", () => {
             const rawVal = item.val.trim();
             if (rawVal) {
                 hasInput = true;
-                const reversedVal = item.func(rawVal);
-                createFlipCard(key, rawVal.toUpperCase(), reversedVal.toUpperCase());
+                // ここで大文字にしてからカードにするので、画像保存時も確実に大文字になる！
+                const originalUpper = rawVal.toUpperCase();
+                const reversedUpper = item.func(originalUpper).toUpperCase();
+                
+                // 1. My Type ボードに白カードを作る
+                createStaticCard(key, originalUpper);
+                
+                // 2. Reverse ボードにフリップカードを作る
+                createFlipCard(key, originalUpper, reversedUpper);
                 
                 payloadToGAS[key] = {
-                    original: rawVal.toUpperCase(),
-                    reverse: reversedVal.toUpperCase()
+                    original: originalUpper,
+                    reverse: reversedUpper
                 };
             }
         }
 
         if (hasInput) {
             resultSection.classList.remove("hidden");
-            actionBtns.classList.remove("hidden"); 
             sendDataToGAS(payloadToGAS);
 
+            // フリップカードが順番にパタパタ裏返る！
             setTimeout(() => {
                 const cards = document.querySelectorAll('.flip-card');
                 cards.forEach((card, index) => {
@@ -67,6 +74,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // 👤 自認用の静的な白カードを作る関数
+    function createStaticCard(title, value) {
+        const card = document.createElement("div");
+        card.className = "static-card";
+        card.innerHTML = `
+            <div class="card-title">${title}</div>
+            <div class="card-value">${value}</div>
+        `;
+        myTypeBoard.appendChild(card);
+    }
+
+    // 🪞 反転用のフリップカードを作る関数
     function createFlipCard(title, original, reversed) {
         const card = document.createElement("div");
         card.className = "flip-card";
@@ -77,13 +96,47 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="card-value">${original}</div>
                 </div>
                 <div class="flip-card-back">
-                    <div class="card-title">${title} (Reverse)</div>
+                    <div class="card-title">${title}</div>
                     <div class="card-value">${reversed}</div>
                 </div>
             </div>
         `;
-        resultBoard.appendChild(card);
+        reverseBoard.appendChild(card);
     }
+
+    // --- 画像保存ロジック（キャプチャバグ完全回避） ---
+    saveBtn.addEventListener("click", () => {
+        const target = document.getElementById("export-container");
+        
+        // 3Dバグ回避クラスをつける
+        target.classList.add("capture-mode");
+
+        setTimeout(() => {
+            html2canvas(target, { backgroundColor: "#f7f9fa", scale: 2 }).then(canvas => {
+                // キャプチャが終わったら元に戻す
+                target.classList.remove("capture-mode");
+
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+                if (isMobile) {
+                    const modal = document.getElementById("image-modal");
+                    const modalImage = document.getElementById("modal-image");
+                    modalImage.src = canvas.toDataURL('image/png');
+                    modal.classList.remove("hidden");
+                } else {
+                    const link = document.createElement('a');
+                    link.download = 'reverse-mirror.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
+            });
+        }, 150); 
+    });
+
+    // モーダルを閉じる
+    document.getElementById("modal-close").addEventListener("click", () => {
+        document.getElementById("image-modal").classList.add("hidden");
+    });
 
     function sendDataToGAS(dataObj) {
         if (!GAS_URL) return;
@@ -94,46 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify({ timestamp: new Date().toISOString(), data: dataObj })
         }).catch(err => console.error("GAS Send Error:", err));
     }
-
-    // --- 画像保存ロジック（PCとスマホで分岐） ---
-    saveBtn.addEventListener("click", () => {
-        const hideElements = document.querySelectorAll('.hide-on-capture');
-        hideElements.forEach(el => el.style.display = 'none');
-
-        const target = document.getElementById("export-container");
-        
-        // 💡 3Dバグ回避: 保存する瞬間だけ、カードの3D回転をなくすクラスを付与
-        target.classList.add("capture-mode");
-
-        setTimeout(() => {
-            html2canvas(target, { backgroundColor: "#f7f9fa", scale: 2 }).then(canvas => {
-                // 元に戻す
-                target.classList.remove("capture-mode");
-                hideElements.forEach(el => el.style.display = '');
-
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-
-                if (isMobile) {
-                    // スマホ: モーダルを開いて長押し保存を促す
-                    const modal = document.getElementById("image-modal");
-                    const modalImage = document.getElementById("modal-image");
-                    modalImage.src = canvas.toDataURL('image/png');
-                    modal.classList.remove("hidden");
-                } else {
-                    // PC: 直接ダウンロード
-                    const link = document.createElement('a');
-                    link.download = 'reverse-mirror.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                }
-            });
-        }, 100); // 描画が切り替わるのを少し待つ
-    });
-
-    // モーダルを閉じる
-    document.getElementById("modal-close").addEventListener("click", () => {
-        document.getElementById("image-modal").classList.add("hidden");
-    });
 
     shareBtn.addEventListener("click", async () => {
         if (navigator.share) {
@@ -147,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // --- 変換ロジック (既存と同じ) ---
+    // --- 各類型の変換ロジック (変更なし) ---
     function getNSFromInputs() {
         const mbti = document.getElementById("mbti").value.toUpperCase();
         const socio = document.getElementById("socionics").value.toUpperCase();
