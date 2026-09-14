@@ -1,4 +1,4 @@
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyiQ8X8mtypSZoIdB1QP1joUyBJ2zWRqY68oP2oEc0eNgUtIveH2fBKlXQtDZgCeB_9vQ/exec"; 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwvWAFJhcpLH_aWxxNord2Cc6SCl2MbpkoB0qiiGjeoDF0QCKKOHY44J_QpwIYgk_iv/exec"; 
 
 document.addEventListener("DOMContentLoaded", () => {
     // 💡 入力された文字を物理的に大文字に変換（画像保存時に小文字になるバグ対策）
