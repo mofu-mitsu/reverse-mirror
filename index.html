@@ -71,19 +71,19 @@
       <button id="reverse-btn" class="reverse-btn"><i class="ph ph-arrows-clockwise"></i> Reverse!</button>
     </section>
 
+    <!-- 結果エリア -->
     <section id="result-section" class="result-section hidden">
       <div id="export-container" class="capture-area">
         
-        <!-- 画像保存時のみ一瞬だけ表示される「My Type(白)」 -->
-        <div id="my-type-section" class="result-block" style="display: none; margin-bottom: 30px;">
+        <!-- 最初から表示される「My Type(白)」 -->
+        <div id="my-type-section" class="result-block" style="margin-bottom: 30px;">
           <h4 class="block-title"><i class="ph ph-user-circle"></i> My Type</h4>
           <div class="reversi-board" id="my-type-board"></div>
         </div>
 
-        <!-- 普段から表示されてパタパタ裏返る「Reverse(黒)」 -->
+        <!-- 最初から表示されてパタパタ裏返る「Reverse(黒)」 -->
         <div id="reverse-section" class="result-block">
-          <h3 id="main-result-title" style="text-align: center; margin-bottom: 20px;"><i class="ph ph-magic-wand"></i> Your Reverse Mirror</h3>
-          <h4 id="reverse-title" class="block-title" style="display: none;"><i class="ph ph-magic-wand"></i> Reverse Mirror</h4>
+          <h4 class="block-title"><i class="ph ph-magic-wand"></i> Reverse Mirror</h4>
           <div class="reversi-board" id="reverse-board"></div>
         </div>
 
@@ -94,6 +94,7 @@
         <button id="share-btn" class="action-btn"><i class="ph ph-share-network"></i> シェアする</button>
       </div>
 
+      <!-- 説明文を完全復活！ -->
       <div class="explanation-box">
         <h4><i class="ph ph-lightbulb"></i> この関係の面白さ</h4>
         <p>
