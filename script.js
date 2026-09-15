@@ -191,11 +191,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function reversePsycho(val) {
-        const psychoMap = { "LVFE":"EVLF", "EVLF":"LVFE", "LVEF":"EVFL", "EVFL":"LVEF", "VLFE":"ELVF", "ELVF":"VLFE", "LFEV":"EFVL", "EFVL":"LFEV", "LFVE":"EFLV", "EFLV":"LFVE", "FLVE":"LEFV", "LEFV":"FLVE", "VLEF":"FELV", "FVLE":"FELV" };
         const v = val.toUpperCase();
-        if (v === "FELV") return document.getElementById("mbti").value.toUpperCase() === "ESTP" ? "FVLE" : "VLEF";
+        
+        // 💡 みつき指定の「2番目が共通する」サイコソフィアのペア対応表
+        const psychoMap = { 
+            "LVFE": "EVLF", "EVLF": "LVFE", 
+            "LVEF": "EVFL", "EVFL": "LVEF", 
+            "VLEF": "ELFV", "ELFV": "VLEF", 
+            "VLFE": "ELVF", "ELVF": "VLFE", 
+            "VFEL": "EFLV", // VFEL は EFLV へ
+            "LFEV": "EFVL", "EFVL": "LFEV", 
+            "LFVE": "EFLV", "EFLV": "LFVE"  // EFLV のデフォルト反転は LFVE
+        };
+        
+        // 対応表にあればそれを返す
         if (psychoMap[v]) return psychoMap[v];
+        
+        // 💡 上記以外のタイプはすべて「2番目固定で残りを再配置（D B A C）」
         if (v.length === 4) return v[3] + v[1] + v[0] + v[2];
+        
         return val;
     }
 
@@ -245,7 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function reverseJung(val) {
-        // 💡 全角カッコ「（ ）」が入力されても半角「( )」に自動変換して処理するよ！
         let v = val.toUpperCase().replace(/\s+/g, '').replace(/（/g, '(').replace(/）/g, ')');
         const ns = getNSFromInputs();
         const tf = getTFFromInputs();
@@ -272,4 +285,3 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
-// 👆 ここまでしっかりコピーしてね！！
