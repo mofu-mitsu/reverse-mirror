@@ -199,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "LVEF": "EVFL", "EVFL": "LVEF", 
             "VLEF": "ELFV", "ELFV": "VLEF", 
             "VLFE": "ELVF", "ELVF": "VLFE", 
-            "VFEL": "EFLV", // VFEL は EFLV へ
             "LFEV": "EFVL", "EFVL": "LFEV", 
             "LFVE": "EFLV", "EFLV": "LFVE"  // EFLV のデフォルト反転は LFVE
         };
